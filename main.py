@@ -82,7 +82,6 @@ async def startup_event():
     logger.info(f"Knowledge Base ID: {config.knowledge_base_id}")
     logger.info(f"Agent ID: {config.agent_id}")
 
-
 templates = Jinja2Templates(directory="templates")
 @app.get("/",response_class=HTMLResponse)
 async def root(request:Request):
