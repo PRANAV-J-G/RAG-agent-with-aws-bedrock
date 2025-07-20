@@ -1,0 +1,1256 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CookingGenie - Enterprise AI Culinary Assistant</title>
+
+    <!-- Fonts -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Icons -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+    />
+
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      :root {
+        --primary-color: #00d4ff;
+        --primary-gradient: linear-gradient(
+          135deg,
+          #00d4ff 0%,
+          #0099cc 50%,
+          #006699 100%
+        );
+        --secondary-color: #1a1a1a;
+        --secondary-gradient: linear-gradient(135deg, #2d2d2d 0%, #1a1a1a 100%);
+        --accent-color: #ff6b35;
+        --success-color: #00ff88;
+        --warning-color: #ffaa00;
+        --error-color: #ff4444;
+        --text-primary: #ffffff;
+        --text-secondary: #b3b3b3;
+        --text-muted: #666666;
+        --background: #000000;
+        --background-secondary: #111111;
+        --card-bg: rgba(26, 26, 26, 0.95);
+        --card-border: rgba(0, 212, 255, 0.2);
+        --glass-bg: rgba(255, 255, 255, 0.05);
+        --border-radius: 12px;
+        --shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        --shadow-hover: 0 12px 48px rgba(0, 212, 255, 0.2);
+        --glow: 0 0 20px rgba(0, 212, 255, 0.3);
+      }
+
+      body {
+        font-family: "Inter", sans-serif;
+        background: var(--background);
+        min-height: 100vh;
+        color: var(--text-primary);
+        overflow-x: hidden;
+        line-height: 1.6;
+      }
+
+      .container {
+        max-width: 1600px;
+        margin: 0 auto;
+        padding: 24px;
+      }
+
+      .header {
+        text-align: center;
+        margin-bottom: 40px;
+        position: relative;
+        padding: 40px 0;
+      }
+
+      .header::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 100%;
+        height: 2px;
+        background: var(--primary-gradient);
+        opacity: 0.5;
+      }
+
+      .logo-container {
+        margin-bottom: 24px;
+        animation: fadeInDown 1s ease-out;
+      }
+
+      .logo {
+        font-size: 3.5rem;
+        background: var(--primary-gradient);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        animation: pulse 3s infinite;
+        filter: drop-shadow(0 0 10px rgba(0, 212, 255, 0.5));
+      }
+
+      .header h1 {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 2.8rem;
+        font-weight: 700;
+        margin-bottom: 12px;
+        color: var(--text-primary);
+        text-shadow: 0 0 20px rgba(0, 212, 255, 0.5);
+        animation: slideInDown 1s ease-out;
+        letter-spacing: 2px;
+      }
+
+      .header p {
+        font-size: 1.2rem;
+        color: var(--text-secondary);
+        animation: slideInUp 1s ease-out;
+        font-weight: 400;
+        letter-spacing: 0.5px;
+      }
+
+      .main-content {
+        display: grid;
+        grid-template-columns: 400px 1fr;
+        gap: 32px;
+        margin-bottom: 32px;
+        align-items: start;
+      }
+
+      .sidebar {
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+        position: sticky;
+        top: 24px;
+      }
+
+      .card {
+        background: var(--card-bg);
+        border-radius: var(--border-radius);
+        padding: 24px;
+        box-shadow: var(--shadow);
+        border: 1px solid var(--card-border);
+        -webkit-backdrop-filter: blur(20px);
+        backdrop-filter: blur(20px);
+        transition: all 0.3s ease;
+        animation: slideInLeft 0.8s ease-out;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .card::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 1px;
+        background: var(--primary-gradient);
+        opacity: 0.3;
+      }
+
+      .card:hover {
+        transform: translateY(-4px);
+        box-shadow: var(--shadow-hover);
+        border-color: var(--primary-color);
+      }
+
+      .card h3 {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 1.1rem;
+        font-weight: 600;
+        margin-bottom: 20px;
+        color: var(--primary-color);
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+      }
+
+      .suggestions-list {
+        list-style: none;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+
+      .suggestion-item {
+        padding: 12px 16px;
+        background: var(--glass-bg);
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        font-weight: 400;
+        color: var(--text-secondary);
+        position: relative;
+        overflow: hidden;
+      }
+
+      .suggestion-item::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(
+          90deg,
+          transparent,
+          rgba(0, 212, 255, 0.1),
+          transparent
+        );
+        transition: left 0.5s ease;
+      }
+
+      .suggestion-item:hover {
+        background: rgba(0, 212, 255, 0.1);
+        color: var(--text-primary);
+        transform: translateX(4px);
+        border-color: var(--primary-color);
+        box-shadow: var(--glow);
+      }
+
+      .suggestion-item:hover::before {
+        left: 100%;
+      }
+
+      .suggestion-item i {
+        margin-right: 12px;
+        opacity: 0.7;
+        color: var(--primary-color);
+      }
+
+      .chat-section {
+        animation: slideInRight 0.8s ease-out;
+        height: calc(100vh - 200px);
+        display: flex;
+        flex-direction: column;
+      }
+
+      .chat-container {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        position: relative;
+        min-height: 0;
+      }
+
+      .chat-header {
+        background: var(--secondary-gradient);
+        color: var(--text-primary);
+        padding: 20px 24px;
+        border-radius: var(--border-radius) var(--border-radius) 0 0;
+        margin: -24px -24px 0 -24px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        border-bottom: 1px solid var(--card-border);
+      }
+
+      .chat-header h2 {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 1.2rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+      }
+
+      .status-indicator {
+        width: 8px;
+        height: 8px;
+        background: var(--success-color);
+        border-radius: 50%;
+        animation: blink 2s infinite;
+        box-shadow: 0 0 10px var(--success-color);
+      }
+
+      .chat-messages {
+        flex: 1;
+        overflow-y: auto;
+        padding: 24px 0;
+        margin: 0 -4px;
+        scroll-behavior: smooth;
+        min-height: 0;
+      }
+
+      .message {
+        margin-bottom: 20px;
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+        animation: messageSlideIn 0.5s ease-out;
+      }
+
+      .message.user {
+        flex-direction: row-reverse;
+      }
+
+      .message-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.1rem;
+        flex-shrink: 0;
+        position: relative;
+        border: 2px solid transparent;
+      }
+
+      .user .message-avatar {
+        background: var(--secondary-gradient);
+        color: var(--text-primary);
+        border-color: var(--primary-color);
+        box-shadow: 0 0 15px rgba(0, 212, 255, 0.3);
+      }
+
+      .assistant .message-avatar {
+        background: var(--primary-gradient);
+        color: var(--background);
+        border-color: var(--primary-color);
+        box-shadow: 0 0 15px rgba(0, 212, 255, 0.4);
+      }
+
+      .message-content {
+        background: var(--glass-bg);
+        padding: 16px 20px;
+        border-radius: 16px;
+        max-width: 75%;
+        line-height: 1.6;
+        font-weight: 400;
+        box-shadow: var(--shadow);
+        position: relative;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        color: var(--text-primary);
+      }
+
+      .user .message-content {
+        background: var(--secondary-gradient);
+        color: var(--text-primary);
+        border-color: var(--primary-color);
+      }
+
+      .assistant .message-content {
+        background: var(--card-bg);
+        border-color: var(--card-border);
+      }
+
+      .message-content::before {
+        content: "";
+        position: absolute;
+        width: 0;
+        height: 0;
+        border-style: solid;
+      }
+
+      .user .message-content::before {
+        right: -8px;
+        top: 12px;
+        border: 8px solid transparent;
+        border-left-color: var(--secondary-color);
+      }
+
+      .assistant .message-content::before {
+        left: -8px;
+        top: 12px;
+        border: 8px solid transparent;
+        border-right-color: var(--card-bg);
+      }
+
+      .chat-input-container {
+        margin-top: 20px;
+        position: relative;
+      }
+
+      .chat-input-area {
+        display: flex;
+        gap: 12px;
+        align-items: flex-end;
+        background: var(--card-bg);
+        padding: 16px;
+        border-radius: var(--border-radius);
+        box-shadow: var(--shadow);
+        border: 1px solid var(--card-border);
+        transition: all 0.3s ease;
+      }
+
+      .chat-input-area:focus-within {
+        border-color: var(--primary-color);
+        box-shadow: var(--glow);
+      }
+
+      .chat-input {
+        flex: 1;
+        border: none;
+        border-radius: 8px;
+        padding: 12px 16px;
+        font-size: 0.95rem;
+        resize: none;
+        min-height: 44px;
+        max-height: 120px;
+        font-family: inherit;
+        background: var(--glass-bg);
+        color: var(--text-primary);
+        transition: all 0.3s ease;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+      }
+
+      .chat-input::placeholder {
+        color: var(--text-muted);
+      }
+
+      .chat-input:focus {
+        outline: none;
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 2px rgba(0, 212, 255, 0.2);
+      }
+
+      .btn {
+        background: var(--primary-gradient);
+        color: var(--background);
+        border: none;
+        padding: 12px 20px;
+        border-radius: 8px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        box-shadow: var(--shadow);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        font-family: "JetBrains Mono", monospace;
+      }
+
+      .btn:hover {
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-hover);
+        filter: brightness(1.1);
+      }
+
+      .btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        transform: none;
+      }
+
+      .btn.secondary {
+        background: var(--secondary-gradient);
+        color: var(--text-primary);
+        border: 1px solid var(--card-border);
+      }
+
+      .btn.secondary:hover {
+        border-color: var(--primary-color);
+        box-shadow: var(--glow);
+      }
+
+      .loading {
+        display: none;
+        text-align: center;
+        color: var(--primary-color);
+        margin: 16px 0;
+        font-weight: 500;
+        font-family: "JetBrains Mono", monospace;
+      }
+
+      .loading i {
+        animation: spin 1s linear infinite;
+        margin-right: 8px;
+      }
+
+      .typing-indicator {
+        display: none;
+        padding: 12px 16px;
+        background: var(--card-bg);
+        border-radius: 16px;
+        margin: 8px 48px 8px 0;
+        box-shadow: var(--shadow);
+        border: 1px solid var(--card-border);
+      }
+
+      .typing-dots {
+        display: flex;
+        gap: 4px;
+        align-items: center;
+      }
+
+      .typing-dot {
+        width: 6px;
+        height: 6px;
+        background: var(--primary-color);
+        border-radius: 50%;
+        animation: typingBounce 1.4s infinite ease-in-out;
+      }
+
+      .typing-dot:nth-child(1) {
+        animation-delay: -0.32s;
+      }
+      .typing-dot:nth-child(2) {
+        animation-delay: -0.16s;
+      }
+
+      .status-bar {
+        background: var(--card-bg);
+        border-radius: var(--border-radius);
+        padding: 16px 24px;
+        margin-top: 24px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        box-shadow: var(--shadow);
+        border: 1px solid var(--card-border);
+        animation: slideInUp 1s ease-out;
+      }
+
+      .status-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 0.85rem;
+        color: var(--text-secondary);
+        font-weight: 500;
+        font-family: "JetBrains Mono", monospace;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+
+      .status-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: var(--success-color);
+        animation: pulse 2s infinite;
+        box-shadow: 0 0 8px var(--success-color);
+      }
+
+      .alert {
+        padding: 12px 16px;
+        border-radius: 8px;
+        margin-bottom: 16px;
+        font-weight: 500;
+        display: none;
+        animation: slideInDown 0.5s ease-out;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.85rem;
+      }
+
+      .alert.success {
+        background: rgba(0, 255, 136, 0.1);
+        color: var(--success-color);
+        border: 1px solid var(--success-color);
+      }
+
+      .alert.error {
+        background: rgba(255, 68, 68, 0.1);
+        color: var(--error-color);
+        border: 1px solid var(--error-color);
+      }
+
+      .feature-card {
+        background: var(--glass-bg);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 8px;
+        padding: 16px;
+        text-align: center;
+        margin-bottom: 16px;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .feature-card::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(
+          90deg,
+          transparent,
+          rgba(0, 212, 255, 0.05),
+          transparent
+        );
+        transition: left 0.5s ease;
+      }
+
+      .feature-card:hover {
+        transform: translateY(-2px);
+        border-color: var(--primary-color);
+        box-shadow: var(--glow);
+      }
+
+      .feature-card:hover::before {
+        left: 100%;
+      }
+
+      .feature-icon {
+        font-size: 2rem;
+        margin-bottom: 12px;
+        color: var(--primary-color);
+        opacity: 0.8;
+      }
+
+      .feature-card h4 {
+        color: var(--text-primary);
+        margin-bottom: 8px;
+        font-size: 0.9rem;
+        font-weight: 600;
+      }
+
+      .feature-card p {
+        color: var(--text-secondary);
+        font-size: 0.8rem;
+        line-height: 1.4;
+      }
+
+      .recipe-counter {
+        background: var(--primary-gradient);
+        color: var(--background);
+        padding: 6px 12px;
+        border-radius: 16px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+
+      /* Animations */
+      @keyframes fadeInDown {
+        0% {
+          transform: translateY(-20px);
+          opacity: 0;
+        }
+        100% {
+          transform: translateY(0);
+          opacity: 1;
+        }
+      }
+
+      @keyframes slideInDown {
+        0% {
+          transform: translateY(-30px);
+          opacity: 0;
+        }
+        100% {
+          transform: translateY(0);
+          opacity: 1;
+        }
+      }
+
+      @keyframes slideInUp {
+        0% {
+          transform: translateY(30px);
+          opacity: 0;
+        }
+        100% {
+          transform: translateY(0);
+          opacity: 1;
+        }
+      }
+
+      @keyframes slideInLeft {
+        0% {
+          transform: translateX(-30px);
+          opacity: 0;
+        }
+        100% {
+          transform: translateX(0);
+          opacity: 1;
+        }
+      }
+
+      @keyframes slideInRight {
+        0% {
+          transform: translateX(30px);
+          opacity: 0;
+        }
+        100% {
+          transform: translateX(0);
+          opacity: 1;
+        }
+      }
+
+      @keyframes messageSlideIn {
+        0% {
+          transform: translateY(10px);
+          opacity: 0;
+        }
+        100% {
+          transform: translateY(0);
+          opacity: 1;
+        }
+      }
+
+      @keyframes pulse {
+        0%,
+        100% {
+          transform: scale(1);
+        }
+        50% {
+          transform: scale(1.05);
+        }
+      }
+
+      @keyframes blink {
+        0%,
+        50% {
+          opacity: 1;
+        }
+        51%,
+        100% {
+          opacity: 0.3;
+        }
+      }
+
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+
+      @keyframes typingBounce {
+        0%,
+        80%,
+        100% {
+          transform: scale(0);
+        }
+        40% {
+          transform: scale(1);
+        }
+      }
+
+      /* Responsive Design */
+      @media (max-width: 1400px) {
+        .main-content {
+          grid-template-columns: 350px 1fr;
+          gap: 24px;
+        }
+      }
+
+      @media (max-width: 1200px) {
+        .main-content {
+          grid-template-columns: 1fr;
+          gap: 24px;
+        }
+
+        .sidebar {
+          order: 2;
+          flex-direction: row;
+          overflow-x: auto;
+          position: static;
+        }
+
+        .sidebar .card {
+          min-width: 300px;
+          flex-shrink: 0;
+        }
+
+        .chat-section {
+          height: 70vh;
+        }
+      }
+
+      @media (max-width: 768px) {
+        .container {
+          padding: 16px;
+        }
+
+        .header h1 {
+          font-size: 2rem;
+        }
+
+        .header p {
+          font-size: 1rem;
+        }
+
+        .card {
+          padding: 16px;
+        }
+
+        .chat-section {
+          height: 60vh;
+        }
+
+        .message-content {
+          max-width: 85%;
+        }
+
+        .status-bar {
+          flex-direction: column;
+          gap: 12px;
+          text-align: center;
+        }
+
+        .sidebar {
+          flex-direction: column;
+        }
+
+        .sidebar .card {
+          min-width: auto;
+        }
+
+        .main-content {
+          grid-template-columns: 1fr;
+          gap: 16px;
+        }
+      }
+
+      /* Scrollbar Styling */
+      .chat-messages::-webkit-scrollbar {
+        width: 6px;
+      }
+
+      .chat-messages::-webkit-scrollbar-track {
+        background: var(--background-secondary);
+        border-radius: 3px;
+      }
+
+      .chat-messages::-webkit-scrollbar-thumb {
+        background: var(--primary-gradient);
+        border-radius: 3px;
+      }
+
+      .chat-messages::-webkit-scrollbar-thumb:hover {
+        background: var(--primary-color);
+      }
+
+      /* Selection styling */
+      ::selection {
+        background: rgba(0, 212, 255, 0.3);
+        color: var(--text-primary);
+      }
+
+      /* Focus outline */
+      button:focus,
+      textarea:focus {
+        outline: 2px solid var(--primary-color);
+        outline-offset: 2px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <div class="logo-container">
+          <div class="logo">
+            <i class="fas fa-robot"></i>
+          </div>
+        </div>
+        <h1><i class="fas fa-brain"></i> CookingGenie AI</h1>
+        <p>
+          Enterprise-Grade Culinary Intelligence System | Powered by AWS Bedrock
+        </p>
+      </div>
+
+      <div class="main-content">
+        <!-- Sidebar -->
+        <div class="sidebar">
+          <div class="card">
+            <h3><i class="fas fa-lightbulb"></i> Query Suggestions</h3>
+            <ul class="suggestions-list" id="suggestionsList">
+              <!-- Suggestions will be loaded here -->
+            </ul>
+          </div>
+        </div>
+
+        <!-- Chat Section -->
+        <div class="card chat-section">
+          <div class="chat-header">
+            <h2><i class="fas fa-terminal"></i> AI Assistant Interface</h2>
+            <div class="status-indicator"></div>
+          </div>
+
+          <div class="alert success" id="successAlert"></div>
+          <div class="alert error" id="errorAlert"></div>
+
+          <div class="chat-container">
+            <div class="chat-messages" id="chatMessages">
+              <div class="message assistant">
+                <div class="message-avatar">
+                  <i class="fas fa-robot"></i>
+                </div>
+                <div class="message-content">
+                  <strong>CookingGenie AI System Initialized</strong
+                  ><br /><br />
+                  Welcome to the enterprise culinary intelligence platform. I am
+                  equipped with advanced recipe knowledge and cooking expertise
+                  to assist with:
+                  <br /><br />
+                  • Recipe formulation and optimization<br />
+                  • Cooking technique analysis<br />
+                  • Ingredient substitution protocols<br />
+                  • Nutritional analysis and modifications<br />
+                  • Equipment and temperature specifications<br /><br />
+                  Please input your culinary query to begin processing.
+                </div>
+              </div>
+            </div>
+
+            <div class="typing-indicator" id="typingIndicator">
+              <div class="typing-dots">
+                <div class="typing-dot"></div>
+                <div class="typing-dot"></div>
+                <div class="typing-dot"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="chat-input-container">
+            <div class="chat-input-area">
+              <textarea
+                id="chatInput"
+                class="chat-input"
+                placeholder="Enter culinary query for AI analysis..."
+                rows="2"
+              ></textarea>
+              <button class="btn" id="sendBtn">
+                <i class="fas fa-paper-plane"></i>
+                Execute
+              </button>
+            </div>
+          </div>
+
+          <div class="loading" id="chatLoading">
+            <i class="fas fa-cog"></i> Processing AI Response...
+          </div>
+        </div>
+      </div>
+
+      <!-- Status Bar -->
+      <div class="status-bar">
+        <div class="status-item">
+          <div class="status-dot"></div>
+          <span>System Online</span>
+        </div>
+        <div class="status-item">
+          <i class="fas fa-cloud"></i>
+          <span>AWS Connected</span>
+        </div>
+        <div class="status-item">
+          <i class="fas fa-database"></i>
+          <span class="recipe-counter">
+            <i class="fas fa-brain"></i>
+            Knowledge Base Active
+          </span>
+        </div>
+        <button class="btn secondary" id="clearSessionBtn">
+          <i class="fas fa-refresh"></i>
+          Reset Session
+        </button>
+      </div>
+    </div>
+
+    <script>
+      class CookingGenieApp {
+        constructor() {
+          this.initializeElements();
+          this.attachEventListeners();
+          this.loadSuggestions();
+          this.sessionId = null;
+        }
+
+        initializeElements() {
+          this.chatMessages = document.getElementById("chatMessages");
+          this.chatInput = document.getElementById("chatInput");
+          this.sendBtn = document.getElementById("sendBtn");
+          this.successAlert = document.getElementById("successAlert");
+          this.errorAlert = document.getElementById("errorAlert");
+          this.chatLoading = document.getElementById("chatLoading");
+          this.typingIndicator = document.getElementById("typingIndicator");
+          this.suggestionsList = document.getElementById("suggestionsList");
+          this.clearSessionBtn = document.getElementById("clearSessionBtn");
+        }
+
+        attachEventListeners() {
+          // Chat events
+          this.sendBtn.addEventListener("click", this.sendMessage.bind(this));
+          this.chatInput.addEventListener("keypress", (e) => {
+            if (e.key === "Enter" && !e.shiftKey) {
+              e.preventDefault();
+              this.sendMessage();
+            }
+          });
+
+          // Auto-resize textarea
+          this.chatInput.addEventListener("input", () => {
+            this.chatInput.style.height = "auto";
+            this.chatInput.style.height = this.chatInput.scrollHeight + "px";
+          });
+
+          // Clear session
+          this.clearSessionBtn.addEventListener(
+            "click",
+            this.clearSession.bind(this)
+          );
+        }
+
+        async loadSuggestions() {
+          try {
+            const response = await fetch("/suggestions");
+            const result = await response.json();
+
+            if (result.success && result.suggestions) {
+              this.displaySuggestions(result.suggestions);
+            } else {
+              this.displayDefaultSuggestions();
+            }
+          } catch (error) {
+            console.error("Error loading suggestions:", error);
+            this.displayDefaultSuggestions();
+          }
+        }
+
+        displaySuggestions(suggestions) {
+          this.suggestionsList.innerHTML = "";
+          suggestions.forEach((suggestion) => {
+            const li = document.createElement("li");
+            li.className = "suggestion-item";
+            li.innerHTML = `<i class="fas fa-search"></i> ${suggestion}`;
+            li.addEventListener("click", () => {
+              this.chatInput.value = suggestion;
+              this.sendMessage();
+            });
+            this.suggestionsList.appendChild(li);
+          });
+        }
+
+        displayDefaultSuggestions() {
+          const defaultSuggestions = [
+            "Analyze pasta preparation techniques",
+            "Optimize pancake texture parameters",
+            "Calculate steak temperature protocols",
+            "Generate pizza dough formulation",
+            "Process cookie baking algorithms",
+            "Evaluate vegetarian protein options",
+            "Design bread fermentation schedule",
+            "Recommend beginner cooking procedures",
+          ];
+          this.displaySuggestions(defaultSuggestions);
+        }
+
+        async sendMessage() {
+          const message = this.chatInput.value.trim();
+          if (!message) return;
+
+          // Disable input and button
+          this.chatInput.disabled = true;
+          this.sendBtn.disabled = true;
+
+          // Add user message to chat
+          this.addMessage(message, "user");
+          this.chatInput.value = "";
+          this.chatInput.style.height = "auto";
+
+          // Show typing indicator
+          this.showTypingIndicator();
+
+          try {
+            const response = await fetch("/query", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({ query: message }),
+            });
+
+            const result = await response.json();
+
+            // Hide typing indicator
+            this.hideTypingIndicator();
+
+            if (result.success) {
+              this.addMessage(result.response, "assistant");
+              this.sessionId = result.session_id;
+
+              // Check if this is a new session due to context window
+              if (result.new_session) {
+                this.showSuccess(
+                  "Session reset due to context length. Processing continued."
+                );
+              }
+            } else {
+              // Check if it's a context window error
+              if (result.message && result.message.includes("context window")) {
+                this.handleContextWindowError();
+              } else {
+                this.addMessage(`System Error: ${result.message}`, "assistant");
+              }
+            }
+          } catch (error) {
+            this.hideTypingIndicator();
+            this.addMessage(`Connection Error: ${error.message}`, "assistant");
+          } finally {
+            // Re-enable input and button
+            this.chatInput.disabled = false;
+            this.sendBtn.disabled = false;
+            this.chatInput.focus();
+          }
+        }
+
+        async handleContextWindowError() {
+          try {
+            // Reset session
+            await fetch("/reset-session", { method: "POST" });
+
+            // Add a message about the reset
+            this.addMessage(
+              "System Notice: Conversation context exceeded. Session has been reset for optimal performance. You may continue with your queries.",
+              "assistant"
+            );
+
+            this.showSuccess(
+              "Session reset successfully. Ready for new queries."
+            );
+          } catch (error) {
+            this.addMessage(
+              "System Notice: Context reset required. Please retry your query.",
+              "assistant"
+            );
+          }
+        }
+
+        addMessage(content, sender) {
+          const messageDiv = document.createElement("div");
+          messageDiv.className = `message ${sender}`;
+
+          const avatar = document.createElement("div");
+          avatar.className = "message-avatar";
+          avatar.innerHTML =
+            sender === "user"
+              ? '<i class="fas fa-user"></i>'
+              : '<i class="fas fa-robot"></i>';
+
+          const messageContent = document.createElement("div");
+          messageContent.className = "message-content";
+
+          // Format message content with line breaks
+          messageContent.innerHTML = this.formatMessage(content);
+
+          messageDiv.appendChild(avatar);
+          messageDiv.appendChild(messageContent);
+
+          this.chatMessages.appendChild(messageDiv);
+          this.scrollToBottom();
+        }
+
+        formatMessage(content) {
+          // Convert newlines to <br> and format lists
+          return content
+            .replace(/\n/g, "<br>")
+            .replace(/•/g, "<br>• ")
+            .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
+            .replace(/\*(.*?)\*/g, "<em>$1</em>")
+            .replace(/`(.*?)`/g, "<code>$1</code>");
+        }
+
+        showTypingIndicator() {
+          this.typingIndicator.style.display = "block";
+          this.scrollToBottom();
+        }
+
+        hideTypingIndicator() {
+          this.typingIndicator.style.display = "none";
+        }
+
+        scrollToBottom() {
+          setTimeout(() => {
+            this.chatMessages.scrollTop = this.chatMessages.scrollHeight;
+          }, 100);
+        }
+
+        async clearSession() {
+          try {
+            const response = await fetch("/clear-session", { method: "POST" });
+            const result = await response.json();
+
+            // Clear chat messages except the welcome message
+            const welcomeMessage = this.chatMessages.firstElementChild;
+            this.chatMessages.innerHTML = "";
+            this.chatMessages.appendChild(welcomeMessage);
+
+            this.sessionId = result.session_id || null;
+            this.showSuccess(
+              result.message ||
+                "New session initialized. System ready for queries."
+            );
+          } catch (error) {
+            this.showError("Session reset failed: " + error.message);
+          }
+        }
+
+        showSuccess(message) {
+          this.hideAlerts();
+          this.successAlert.textContent = message;
+          this.successAlert.style.display = "block";
+          setTimeout(() => this.hideAlerts(), 4000);
+        }
+
+        showError(message) {
+          this.hideAlerts();
+          this.errorAlert.textContent = message;
+          this.errorAlert.style.display = "block";
+          setTimeout(() => this.hideAlerts(), 6000);
+        }
+
+        hideAlerts() {
+          this.successAlert.style.display = "none";
+          this.errorAlert.style.display = "none";
+        }
+      }
+
+      // Initialize the application
+      document.addEventListener("DOMContentLoaded", () => {
+        new CookingGenieApp();
+      });
+
+      // System initialization console output
+      const systemMessages = [
+        "🔧 CookingGenie AI System Loading...",
+        "🤖 Neural networks initialized",
+        "📊 Knowledge base connected",
+        "🔗 AWS Bedrock integration active",
+        "✅ System ready for operation",
+      ];
+
+      // Display system startup messages
+      setTimeout(() => {
+        systemMessages.forEach((msg, index) => {
+          setTimeout(() => {
+            console.log(
+              `%c${msg}`,
+              "color: #00d4ff; font-family: JetBrains Mono; font-weight: bold;"
+            );
+          }, index * 500);
+        });
+      }, 1000);
+    </script>
+  </body>
+</html>
