@@ -16,10 +16,6 @@ CookingGenie is an enterprise-grade AI-powered culinary assistant designed to he
 
 ---
 
-## 📸 Demo
-
-> _Add a screenshot or GIF of the app here if available._
-
 ---
 
 ## 🛠️ Getting Started
